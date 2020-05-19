@@ -8,69 +8,32 @@ DEPENDENCES_PACKS=("curl" "git")
 
 # Packages to install
 DEB_PACKS=( "apt-transport-https" "ca-certificates" "software-properties-common"
-            "dconf-cli" "silversearcher-ag" "vim-gnome" "zsh" "tmux" "automake"
-            "autoconf" "libreadline-dev" "libncurses-dev" "libssl-dev" "xclip"
-            "libyaml-dev" "libxslt-dev" "libffi-dev" "libtool" "unixodbc-dev")
+            "dconf-cli" "silversearcher-ag" "vim-gnome")
 
 # Custom apps to Install (without package management or custom configs)
-CUSTOM_APPS=("install_solarized" "install_zsh_syntax_highlighting"
-             "install_docker" "install_docker_compose" "install_asdf"
-             "install_fzf" "install_xmonad" "install_tmux_plugin")
+CUSTOM_APPS=("install_solarized")
 
 # List of files to link
-FILES_LINK=("aliases" "aliases.local" "tmux.conf" "vimrc" "zsh" "zshenv" "zshrc"
-"bin" "vim" "git/*" "irb/*" "xsessionrc" "Xresources" "xmonad" "xmobarrc"
-"stalonetrayrc")
+FILES_LINK=("aliases" "aliases.local" "vimrc" "zsh"
+"bin" "vim" "git/*")
 
 # Dotfiles folder name
-WS_FOLDER='ws_dotfiles'
+DOT_FOLDER='dotfiles'
 
 # ---------------------------------------
 # Custom install functions
 # ---------------------------------------
 
-function install_tmux_plugin(){
-  git clone https://github.com/tmux-plugins/tpm $HOME/tmux/plugins/tpm
-}
-
-function install_xmonad(){
-  sudo apt-get install xmonad suckless-tools i3lock xmobar stalonetray feh xfce4-power-manager
-}
-
-function install_zsh_syntax_highlighting(){
-  if [ ! -d "$HOME/.zsh-syntax-highlighting" ];then
-    git clone --depth=1 git://github.com/zsh-users/zsh-syntax-highlighting.git "$HOME/.zsh-syntax-highlighting"
-  fi
-}
-
-function install_asdf(){
-  git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.5.1
-}
-
-function install_fzf(){
-  git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-  ~/.fzf/install
-}
-
 function install_solarized(){
-  mkdir -p "$HOME/.$WS_FOLDER"
-  git clone https://github.com/Anthony25/gnome-terminal-colors-solarized.git "$HOME/.$WS_FOLDER/gnome-terminal-colors-solarized"
-  "$HOME/.$WS_FOLDER/gnome-terminal-colors-solarized/install.sh"
+  mkdir -p "$HOME/.$DOT_FOLDER"
+  git clone https://github.com/Anthony25/gnome-terminal-colors-solarized.git "$HOME/.$DOT_FOLDER/gnome-terminal-colors-solarized"
+  "$HOME/.$DOT_FOLDER/gnome-terminal-colors-solarized/install.sh"
 }
 
-function install_docker(){
-  curl -fsSL test.docker.com | sh
-  sudo usermod -aG docker $USER
-}
-
-function install_docker_compose(){
-  sudo curl -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
-  sudo chmod +x /usr/local/bin/docker-compose
-}
 # ------------ End of custom install functions
 
 function check_previus_install(){
-  if [ -d "$HOME/.$WS_FOLDER" ];then
+  if [ -d "$HOME/.$DOT_FOLDER" ];then
     return 0
   else
     return 1
@@ -110,7 +73,7 @@ function install_pkgs(){
 }
 
 function clone_repository(){
-  git clone https://github.com/Danielwsx64/ws_dotfiles.git "$HOME/.$WS_FOLDER"
+  git clone https://github.com/DougBR/ws_dotfiles.git "$HOME/.$DOT_FOLDER"
 }
 
 function backup_file(){
@@ -128,7 +91,7 @@ function create_symbol_link(){
 function create_files_link(){
   for file in "${FILES_LINK[@]}"; do
 
-    file_source="$HOME/.$WS_FOLDER/$file"
+    file_source="$HOME/.$DOT_FOLDER/$file"
     file_link="$HOME/.$file"
 
     if [ "${file_source: -1}" = "*" ];then
@@ -145,7 +108,7 @@ function create_files_link(){
 }
 
 function install_fonts(){
-  mkdir -p "$HOME/.fonts" && cp "$HOME/.$WS_FOLDER/fonts/"* "$HOME/.fonts" && fc-cache -vf "$HOME/.fonts"
+  mkdir -p "$HOME/.fonts" && cp "$HOME/.$DOT_FOLDER/fonts/"* "$HOME/.fonts" && fc-cache -vf "$HOME/.fonts"
 }
 
 function install_vim_plugins(){
@@ -154,7 +117,7 @@ function install_vim_plugins(){
 
 function already_installed(){
   echo
-  echo 'WS Dotfiles is already installed!'
+  echo 'Dotfiles is already installed!'
   echo
   echo 'To reinstall:'
   echo " $0 --reinstall"
@@ -172,7 +135,7 @@ function install_dotfiles(){
     exit 1
   fi
 
-  echo -e ' \n\n---- Now it´ll clone Git repository'
+  echo -e ' \n\n---- Now it´ll install dependencies'
   install_dependences
 
   echo -e ' \n\n---- Now it´ll clone Git repository'
@@ -189,10 +152,7 @@ function install_dotfiles(){
 
   echo -e ' \n\n---- It´ll install vim plugins'
   install_vim_plugins
-
-  echo -e ' \n\n---- It´ll change your default shell to zsh'
-  chsh -s $(which zsh)
-
+  
   echo -e ' \n\n---- It´ll make the last configs'
   set_final_config
 }
@@ -217,7 +177,7 @@ case "$1" in
 
   --reinstall|-r)
     if check_previus_install; then
-      sudo rm -rf "$HOME/.$WS_FOLDER"
+      sudo rm -rf "$HOME/.$DOT_FOLDER"
       sudo rm -rf "$HOME/.zsh-syntax-highlighting"
     fi
 
